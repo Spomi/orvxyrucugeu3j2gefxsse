@@ -48,7 +48,7 @@ client.on('message', async msg => { // eslint-disable-line
 
 	if (command === `play`) {
 		const voiceChannel = msg.member.voiceChannel;
-		if (!voiceChannel) return msg.channel.send('أنا آسف ولكن عليك أن تكون في قناة صوتية لتشغيل الموسيقى!');
+	if (!voiceChannel) return msg.channel.send('أنا آسف ولكن عليك أن تكون في قناة صوتية لتشغيل الموسيقى!');
 		const permissions = voiceChannel.permissionsFor(msg.client.user);
 		if (!permissions.has('CONNECT')) {
 			return msg.channel.send('لا أستطيع أن أتكلم في هذه القناة الصوتية، تأكد من أن لدي الصلاحيات الازمة !');
@@ -73,7 +73,7 @@ client.on('message', async msg => { // eslint-disable-line
 				var video = await youtube.getVideo(url);
 			} catch (error) {
 				try {
-          var videos = await youtube.searchVideos(searchString, 5);
+					var videos = await youtube.searchVideos(searchString, 5);
 					let index = 0;
 					const embed1 = new Discord.RichEmbed()
 			        .setDescription(`**اختار رقم المقطع** :
@@ -81,7 +81,46 @@ ${videos.map(video2 => `[**${++index} **] \`${video2.title}\``).join('\n')}`)
 					.setFooter("")
 					msg.channel.sendEmbed(embed1).then(message =>{message.delete(20000)})
 
-					
+					// eslint-disable-next-line max-depth
+					try {
+						var response = await msg.channel.awaitMessages(msg2 => msg2.content > 0 && msg2.content < 11, {
+							maxMatches: 1,
+							time: 10500,
+							errors: ['time']
+						});
+					} catch (err) {
+						console.error(err);
+						return msg.channel.send('لم يتم تحديد العدد لتشغيل الاغنيه.');
+					}
+					const videoIndex = parseInt(response.first().content);
+					var video = await youtube.getVideoByID(videos[videoIndex - 1].id);
+				} catch (err) {
+					console.error(err);
+					return msg.channel.send(':X: لم أستطع الحصول على أية نتائج بحث.');
+				}
+				}
+			return handleVideo(video, msg, voiceChannel);
+		}
+	} else if (command === `skip`) {
+		if (!msg.member.voiceChannel) return msg.channel.send('You are not in a voice channel!');
+		if (!serverQueue) return msg.channel.send('There is nothing playing that I could skip for you.');
+		serverQueue.connection.dispatcher.end('Skip command has been used!');
+		return undefined;
+	} else if (command === `stop`) {
+		if (!msg.member.voiceChannel) return msg.channel.send('You are not in a voice channel!');
+		if (!serverQueue) return msg.channel.send('There is nothing playing that I could stop for you.');
+		serverQueue.songs = [];
+		serverQueue.connection.dispatcher.end('Stop command has been used!');
+		return undefined;
+	} else if (command === `volume`) {
+		if(!msg.member.hasPermission("ADMINISTRATOR")) return
+		if (!msg.member.voiceChannel) return msg.channel.send('You are not in a voice channel!');
+		if (!serverQueue) return msg.channel.send('There is nothing playing.');
+		if (!args[1]) return msg.channel.send(`:loud_sound: Current volume is **${serverQueue.volume}**`);
+		serverQueue.volume = args[1];
+		serverQueue.connection.dispatcher.setVolumeLogarithmic(args[1] / 5);
+		return msg.channel.send(`:speaker: تم تغير الصوت الي **${args[1]}**`);
+	}
 	else if (command === `join`) {
 		if (!msg.member.voiceChannel) return msg.channel.send(':no_entry: || **__يجب ان تكون في روم صوتي__**');
 		msg.member.voiceChannel.join().then(msg.channel.send(':ok:'));
@@ -122,7 +161,8 @@ ${serverQueue.songs.map(song => `**${++index} -** ${song.title}`).join('\n')}
 async function handleVideo(video, msg, voiceChannel, playlist = false) {
 	const serverQueue = queue.get(msg.guild.id);
 	console.log(video);
-  //	console.log('yao: ' + Util.escapeMarkdown(video.thumbnailUrl));
+
+//	console.log('yao: ' + Util.escapeMarkdown(video.thumbnailUrl));
 	const song = {
 		id: video.id,
 		title: Util.escapeMarkdown(video.title),
@@ -182,8 +222,7 @@ function play(guild, song) {
 	serverQueue.textChannel.send(`بدء تشغيل: **${song.title}**`);
 }
 
-				
-		client.on('message', message => {
+client.on('message', message => {
   if (!message.content.startsWith(PREFIX)) return;
   var args = message.content.split(' ').slice(1);
   var argresult = args.join(' ');
@@ -221,8 +260,9 @@ msg.author.send("Commands ستاتي " + `  **
 **`);
  }
 });
-		
-	client.on('message', message => {
+
+
+client.on('message', message => {
     var prefix = "+";
 
       if (!message.content.startsWith(prefix)) return;
@@ -260,15 +300,7 @@ msg.author.send("Commands ستاتي " + `  **
 
 
      });
-			
-				
-				
-				
-				
-				
-				
-				
-				
-				
-client.login(process.env.BOT_TOKEN);			
-				
+
+
+
+client.login(process.env.BOT_TOKEN);
