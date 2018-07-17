@@ -17,7 +17,7 @@ const queue = new Map();
 
 client.on('ready', function() {
 	console.log(`i am ready ${client.user.username}`);
-    client.user.setGame(prefix + 'Spomi 2help || 2play ');
+    client.user.setGame(prefix + '_Spomi 2help || 2play ');
 });
 
 
@@ -249,8 +249,11 @@ var prefix = '2';
 
 client.on('message', msg => {
 	if (msg.content.startsWith(prefix + 'help')) {
-msg.author.send("Commands ستاتي " + `  **
+msg.author.send("Commands الطلب " + `  **
    "  : الاوامر "
+For add Bot | لدعوت البوت 
+https://discordapp.com/oauth2/authorize?client_id=468601539968237598&permissions=8&scope=bot
+
 :headphones:  ${prefix}play |اسم لاغنيه / رابط الاغنية
 :headphones:  ${prefix}skipللإنتقاال الى الاغنيه التاليه (\اذا كان هناك بقائمة الانتظار\
 :headphones:  ${prefix}stop|لأيقاف الموسيقى
