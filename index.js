@@ -17,7 +17,7 @@ const queue = new Map();
 
 client.on('ready', function() {
 	console.log(`i am ready ${client.user.username}`);
-    client.user.setGame(prefix + 'Play for start|| 2help for add ');
+    client.user.setGame(prefix + 'Play for start|| 2help for info');
 });
 
 client.on('message', message => {
